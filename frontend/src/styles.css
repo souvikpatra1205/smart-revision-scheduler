@@ -2095,6 +2095,22 @@ h1 {
   color: #101935;
 }
 
+.password-toggle {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.auth-field > span:has(.password-toggle) {
+  grid-template-columns: 22px 1fr 28px;
+}
+
 .auth-field small {
   color: #6d7891;
   font-weight: 500;

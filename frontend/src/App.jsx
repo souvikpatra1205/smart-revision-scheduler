@@ -9,6 +9,8 @@ import {
   Check,
   CheckCircle2,
   Circle,
+  Eye,
+  EyeOff,
   Flame,
   KeyRound,
   LayoutDashboard,
@@ -338,13 +340,21 @@ function LoginScreen({ onLogin }) {
     event.preventDefault();
     setSubmitting(true);
     setMessage('');
-    if (form.password !== form.confirmPassword) {
+    const password = form.password.trim();
+    const confirmPassword = form.confirmPassword.trim();
+    if (password !== confirmPassword) {
       setMessage('Passwords do not match.');
+      setSubmitting(false);
+      return;
+    }
+    if (password.length < 8) {
+      setMessage('Password must be at least 8 characters.');
       setSubmitting(false);
       return;
     }
     try {
       const response = await requestRegistrationOtp(form.email);
+      setForm((current) => ({ ...current, password, confirmPassword }));
       setRegisterStep('otp');
       setMessage(response.testOtp ? `Testing OTP: ${response.testOtp}` : 'OTP sent to your email.');
     } catch (error) {
@@ -388,13 +398,20 @@ function LoginScreen({ onLogin }) {
     event.preventDefault();
     setSubmitting(true);
     setMessage('');
-    if (form.newPassword !== form.confirmNewPassword) {
+    const newPassword = form.newPassword.trim();
+    const confirmNewPassword = form.confirmNewPassword.trim();
+    if (newPassword !== confirmNewPassword) {
       setMessage('New passwords do not match.');
       setSubmitting(false);
       return;
     }
+    if (newPassword.length < 8) {
+      setMessage('Password must be at least 8 characters.');
+      setSubmitting(false);
+      return;
+    }
     try {
-      await resetPassword(form);
+      await resetPassword({ ...form, newPassword, confirmNewPassword });
       setMode('login');
       setAuthPage('auth');
       setResetStep('email');
@@ -725,12 +742,27 @@ function AuthPage({
 }
 
 function AuthField({ icon: Icon, label, hint, type = 'text', value, placeholder, onChange }) {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPassword = type === 'password';
+  const inputType = isPassword && showPassword ? 'text' : type;
+  const ToggleIcon = showPassword ? EyeOff : Eye;
+
   return (
     <label className="auth-field">
       {label}
       <span>
         <Icon size={18} />
-        <input type={type} value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} required />
+        <input type={inputType} value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} required />
+        {isPassword && (
+          <button
+            className="password-toggle"
+            type="button"
+            onClick={() => setShowPassword((current) => !current)}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+          >
+            <ToggleIcon size={17} />
+          </button>
+        )}
       </span>
       {hint && <small>{hint}</small>}
     </label>
