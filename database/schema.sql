@@ -63,6 +63,8 @@ CREATE TABLE IF NOT EXISTS note_files (
     topic_id BIGINT NOT NULL,
     original_file_name VARCHAR(255) NOT NULL,
     stored_file_name VARCHAR(255) NOT NULL,
+    storage_provider VARCHAR(40) NOT NULL DEFAULT 'local',
+    file_url VARCHAR(1000) NULL,
     content_type VARCHAR(120) NOT NULL,
     size_bytes BIGINT NOT NULL,
     uploaded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -29,6 +29,12 @@ public class NoteFile {
     @Column(name = "stored_file_name", nullable = false)
     private String storedFileName;
 
+    @Column(name = "storage_provider", nullable = false)
+    private String storageProvider = "local";
+
+    @Column(name = "file_url", length = 1000)
+    private String fileUrl;
+
     @Column(name = "content_type", nullable = false)
     private String contentType;
 
@@ -64,6 +70,22 @@ public class NoteFile {
 
     public void setStoredFileName(String storedFileName) {
         this.storedFileName = storedFileName;
+    }
+
+    public String getStorageProvider() {
+        return storageProvider;
+    }
+
+    public void setStorageProvider(String storageProvider) {
+        this.storageProvider = storageProvider;
+    }
+
+    public String getFileUrl() {
+        return fileUrl;
+    }
+
+    public void setFileUrl(String fileUrl) {
+        this.fileUrl = fileUrl;
     }
 
     public String getContentType() {

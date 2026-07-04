@@ -10,15 +10,10 @@ import com.smartrevision.scheduler.topic.Topic;
 import com.smartrevision.scheduler.topic.TopicRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -38,16 +33,16 @@ public class TopicService {
 
     private final TopicRepository topicRepository;
     private final NoteFileRepository noteFileRepository;
-    private final Path uploadDirectory;
+    private final NoteStorageService noteStorageService;
 
     public TopicService(
             TopicRepository topicRepository,
             NoteFileRepository noteFileRepository,
-            @Value("${app.upload.dir:uploads}") String uploadDirectory
+            NoteStorageService noteStorageService
     ) {
         this.topicRepository = topicRepository;
         this.noteFileRepository = noteFileRepository;
-        this.uploadDirectory = Path.of(uploadDirectory).toAbsolutePath().normalize();
+        this.noteStorageService = noteStorageService;
     }
 
     @Transactional
@@ -79,12 +74,6 @@ public class TopicService {
             return List.of();
         }
 
-        try {
-            Files.createDirectories(uploadDirectory);
-        } catch (IOException exception) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not create upload directory");
-        }
-
         return files.stream()
                 .filter(file -> file != null && !file.isEmpty())
                 .map(file -> saveNoteFile(topic, file))
@@ -95,19 +84,12 @@ public class TopicService {
     public NoteFileDownload loadNoteFile(Long userId, Long fileId) {
         NoteFile noteFile = noteFileRepository.findByIdAndTopicUserId(fileId, userId)
                 .orElseThrow(() -> new EntityNotFoundException("File not found"));
-        Path filePath = uploadDirectory.resolve(noteFile.getStoredFileName()).normalize();
-        if (!filePath.startsWith(uploadDirectory)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid file path");
-        }
-        try {
-            Resource resource = new UrlResource(filePath.toUri());
-            if (!resource.exists() || !resource.isReadable()) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found");
-            }
-            return new NoteFileDownload(noteFile, resource);
-        } catch (IOException exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found");
-        }
+        Resource resource = noteStorageService.load(
+                noteFile.getStorageProvider(),
+                noteFile.getStoredFileName(),
+                noteFile.getFileUrl()
+        );
+        return new NoteFileDownload(noteFile, resource);
     }
 
     @Transactional
@@ -133,17 +115,13 @@ public class TopicService {
         String originalFileName = StringUtils.cleanPath(file.getOriginalFilename() == null ? "notes-file" : file.getOriginalFilename());
         String extension = extensionFrom(originalFileName);
         String storedFileName = UUID.randomUUID() + extension;
-        Path target = uploadDirectory.resolve(storedFileName).normalize();
-
-        try {
-            file.transferTo(target);
-        } catch (IOException exception) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not save file");
-        }
+        NoteStorageService.StoredNoteFile storedFile = noteStorageService.store(file, storedFileName);
 
         NoteFile noteFile = new NoteFile();
         noteFile.setOriginalFileName(originalFileName);
-        noteFile.setStoredFileName(storedFileName);
+        noteFile.setStoredFileName(storedFile.storedFileName());
+        noteFile.setStorageProvider(storedFile.storageProvider());
+        noteFile.setFileUrl(storedFile.fileUrl());
         noteFile.setContentType(contentType);
         noteFile.setSizeBytes(file.getSize());
         topic.addNoteFile(noteFile);
