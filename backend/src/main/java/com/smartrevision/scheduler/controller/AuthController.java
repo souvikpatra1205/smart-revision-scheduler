@@ -27,7 +27,10 @@ public class AuthController {
 
     @PostMapping("/register/request-otp")
     public Map<String, String> requestRegistrationOtp(@Valid @RequestBody RegisterOtpRequest request) {
-        authService.requestRegistrationOtp(request);
+        String testOtp = authService.requestRegistrationOtp(request);
+        if (testOtp != null) {
+            return Map.of("message", "Registration OTP generated", "testOtp", testOtp);
+        }
         return Map.of("message", "Registration OTP sent");
     }
 
@@ -48,7 +51,10 @@ public class AuthController {
 
     @PostMapping("/password/request-reset")
     public Map<String, String> requestPasswordReset(@Valid @RequestBody OtpRequest request) {
-        authService.requestPasswordResetOtp(request);
+        String testOtp = authService.requestPasswordResetOtp(request);
+        if (testOtp != null) {
+            return Map.of("message", "Password reset OTP generated", "testOtp", testOtp);
+        }
         return Map.of("message", "Password reset OTP sent");
     }
 

@@ -344,9 +344,9 @@ function LoginScreen({ onLogin }) {
       return;
     }
     try {
-      await requestRegistrationOtp(form.email);
+      const response = await requestRegistrationOtp(form.email);
       setRegisterStep('otp');
-      setMessage('OTP sent. In development, check backend logs if email is disabled.');
+      setMessage(response.testOtp ? `Testing OTP: ${response.testOtp}` : 'OTP sent to your email.');
     } catch {
       setMessage('Could not send OTP. This email may already have an account.');
     } finally {
@@ -374,9 +374,9 @@ function LoginScreen({ onLogin }) {
     setSubmitting(true);
     setMessage('');
     try {
-      await requestPasswordReset(form.email);
+      const response = await requestPasswordReset(form.email);
       setResetStep('otp');
-      setMessage('Password reset OTP sent. In development, check backend logs if email is disabled.');
+      setMessage(response.testOtp ? `Testing OTP: ${response.testOtp}` : 'Password reset OTP sent to your email.');
     } catch {
       setMessage('No account found for this email.');
     } finally {

@@ -68,12 +68,12 @@ public class AuthService {
     }
 
     @Transactional
-    public void requestRegistrationOtp(RegisterOtpRequest request) {
+    public String requestRegistrationOtp(RegisterOtpRequest request) {
         String email = normalizeEmail(request.email());
         userRepository.findByEmail(email).ifPresent(user -> {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Account already exists");
         });
-        createAndSendOtp(email, OtpPurpose.REGISTER, "registration");
+        return createAndSendOtp(email, OtpPurpose.REGISTER, "registration");
     }
 
     @Transactional
@@ -158,11 +158,11 @@ public class AuthService {
     }
 
     @Transactional
-    public void requestPasswordResetOtp(OtpRequest request) {
+    public String requestPasswordResetOtp(OtpRequest request) {
         String email = normalizeEmail(request.email());
         userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found"));
-        createAndSendOtp(email, OtpPurpose.PASSWORD_RESET, "password reset");
+        return createAndSendOtp(email, OtpPurpose.PASSWORD_RESET, "password reset");
     }
 
     @Transactional
@@ -175,7 +175,7 @@ public class AuthService {
         user.verifyEmail();
     }
 
-    private void createAndSendOtp(String email, OtpPurpose purpose, String purposeLabel) {
+    private String createAndSendOtp(String email, OtpPurpose purpose, String purposeLabel) {
         String otp = String.format("%06d", secureRandom.nextInt(1_000_000));
 
         LoginOtp loginOtp = new LoginOtp();
@@ -186,6 +186,7 @@ public class AuthService {
         loginOtpRepository.save(loginOtp);
 
         emailService.sendOtp(email, otp, purposeLabel);
+        return emailService.isMailEnabled() ? null : otp;
     }
 
     private void consumeOtp(String email, String otp, OtpPurpose purpose) {

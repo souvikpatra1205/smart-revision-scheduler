@@ -39,4 +39,8 @@ public class EmailService {
         message.setText("Your OTP is " + otp + ". It expires in 10 minutes.");
         mailSender.send(message);
     }
+
+    public boolean isMailEnabled() {
+        return mailEnabled;
+    }
 }
