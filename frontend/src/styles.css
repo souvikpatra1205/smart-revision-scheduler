@@ -2869,7 +2869,7 @@ h1 {
 }
 
 /* Final navigation breakpoint overrides */
-@media (min-width: 768px) {
+@media (min-width: 901px) {
   .app-shell {
     display: grid;
     grid-template-columns: 396px minmax(0, 1fr);
@@ -2905,7 +2905,7 @@ h1 {
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 900px) {
   body:has(.drawer.open) {
     overflow: hidden;
   }
