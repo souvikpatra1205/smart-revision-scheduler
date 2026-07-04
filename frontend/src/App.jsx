@@ -236,9 +236,9 @@ function App() {
           <span className="brand-mark">SR</span>
           <span>Smart Revision</span>
         </div>
-        <button className={activeView === 'dashboard' ? 'nav-btn active' : 'nav-btn'} onClick={() => setActiveView('dashboard')} title="Dashboard">
+        <button className={activeView === 'dashboard' ? 'nav-btn active' : 'nav-btn'} onClick={() => setActiveView('dashboard')} title="Home">
           <LayoutDashboard size={18} />
-          Dashboard
+          Home
         </button>
         <button className={activeView === 'add' ? 'nav-btn active' : 'nav-btn'} onClick={() => setActiveView('add')} title="Add topic">
           <Plus size={18} />
@@ -302,6 +302,11 @@ function App() {
               />
             </div>
             <div className="drawer-content">
+              <button className="drawer-item" onClick={() => { setActiveView('dashboard'); closeMenu(); }}>
+                <div className="drawer-item-icon"><LayoutDashboard size={18} /></div>
+                <span>Home</span>
+                <ChevronRight size={18} />
+              </button>
               <button className="drawer-item" onClick={() => { setActiveView('add'); closeMenu(); }}>
                 <div className="drawer-item-icon"><Plus size={18} /></div>
                 <span>Add Topic</span>
