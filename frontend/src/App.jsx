@@ -347,8 +347,8 @@ function LoginScreen({ onLogin }) {
       const response = await requestRegistrationOtp(form.email);
       setRegisterStep('otp');
       setMessage(response.testOtp ? `Testing OTP: ${response.testOtp}` : 'OTP sent to your email.');
-    } catch {
-      setMessage('Could not send OTP. This email may already have an account.');
+    } catch (error) {
+      setMessage(`Could not send OTP: ${error.message}`);
     } finally {
       setSubmitting(false);
     }
@@ -377,8 +377,8 @@ function LoginScreen({ onLogin }) {
       const response = await requestPasswordReset(form.email);
       setResetStep('otp');
       setMessage(response.testOtp ? `Testing OTP: ${response.testOtp}` : 'Password reset OTP sent to your email.');
-    } catch {
-      setMessage('No account found for this email.');
+    } catch (error) {
+      setMessage(`Could not send reset OTP: ${error.message}`);
     } finally {
       setSubmitting(false);
     }

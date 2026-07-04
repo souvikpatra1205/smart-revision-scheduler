@@ -26,7 +26,14 @@ async function request(path, options = {}) {
   });
 
   if (!response.ok) {
-    throw new Error(`Request failed with status ${response.status}`);
+    let message = `Request failed with status ${response.status}`;
+    try {
+      const errorBody = await response.json();
+      message = errorBody.message || errorBody.error || message;
+    } catch {
+      // Keep the status message when the server does not return JSON.
+    }
+    throw new Error(message);
   }
 
   return response.json();
