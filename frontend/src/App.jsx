@@ -6,12 +6,15 @@ import {
   BellRing,
   CalendarCheck,
   CalendarDays,
+  ChevronRight,
   Check,
   CheckCircle2,
   Circle,
   Eye,
   EyeOff,
+  Facebook,
   Flame,
+  Instagram,
   KeyRound,
   LayoutDashboard,
   LogOut,
@@ -22,11 +25,13 @@ import {
   PlayCircle,
   Plus,
   Search,
+  Settings,
   ShieldCheck,
   Star,
   Sun,
   Target,
   Trash2,
+  Twitter,
   User,
   UserCircle,
 } from 'lucide-react';
@@ -108,9 +113,17 @@ function App() {
   const [calendarItems, setCalendarItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
+  const [menuQuery, setMenuQuery] = useState('');
   const [darkMode, setDarkMode] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedNotes, setSelectedNotes] = useState(null);
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [menuOpen]);
 
   function closeMenu() {
     setMenuOpen(false);
@@ -206,6 +219,18 @@ function App() {
 
   return (
     <div className={darkMode ? 'app-shell theme-dark' : 'app-shell'}>
+      <header className="mobile-topbar">
+        <button className={menuOpen ? 'hamburger active' : 'hamburger'} onClick={toggleMenu} aria-label={menuOpen ? 'Close menu' : 'Open menu'}>
+          <span />
+          <span />
+          <span />
+        </button>
+        <div className="mobile-brand">
+          <span className="brand-mark">SR</span>
+          <span>Smart Revision</span>
+        </div>
+      </header>
+
       <aside className="sidebar">
         <div className="brand">
           <span className="brand-mark">SR</span>
@@ -236,9 +261,6 @@ function App() {
             <h1>Smart Revision Scheduler</h1>
           </div>
           <div className="topbar-actions">
-            <button className="icon-btn mobile-hamburger" onClick={toggleMenu} title="Open menu">
-              <Menu size={18} />
-            </button>
             <div className="search-box">
               <Search size={17} />
               <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search today" />
@@ -258,6 +280,67 @@ function App() {
             </button>
           </div>
         </header>
+
+        <div className={menuOpen ? 'drawer open' : 'drawer'}>
+          <div className="drawer-overlay" onClick={closeMenu} />
+          <div className="drawer-panel">
+            <div className="drawer-header">
+              <div>
+                <span className="brand-mark">SR</span>
+                <strong>SR Smart Revision</strong>
+              </div>
+              <button className="hamburger active drawer-close" onClick={closeMenu} aria-label="Close menu">
+                <span />
+                <span />
+                <span />
+              </button>
+            </div>
+            <div className="drawer-search">
+              <Search size={18} />
+              <input
+                value={menuQuery}
+                onChange={(event) => setMenuQuery(event.target.value)}
+                placeholder="What are you looking for?"
+              />
+            </div>
+            <div className="drawer-content">
+              <button className="drawer-item" onClick={() => { setActiveView('dashboard'); closeMenu(); }}>
+                <span>Dashboard</span>
+                <ChevronRight size={18} />
+              </button>
+              <button className="drawer-item" onClick={() => { setActiveView('add'); closeMenu(); }}>
+                <span>Add Topic</span>
+                <ChevronRight size={18} />
+              </button>
+              <button className="drawer-item" onClick={() => { setActiveView('calendar'); closeMenu(); }}>
+                <span>Calendar</span>
+                <ChevronRight size={18} />
+              </button>
+              <button className="drawer-item" onClick={() => { setActiveView('statistics'); closeMenu(); }}>
+                <span>Statistics</span>
+                <ChevronRight size={18} />
+              </button>
+            </div>
+            <div className="drawer-secondary">
+              <button className="secondary-link" onClick={() => { setActiveView('settings'); closeMenu(); }}>
+                <Settings size={18} />
+                Settings
+              </button>
+              <button className="secondary-link" onClick={() => { handleLogout(); closeMenu(); }}>
+                <LogOut size={18} />
+                Log out
+              </button>
+            </div>
+            <div className="drawer-footer">
+              <span>Follow Us</span>
+              <div className="social-links">
+                <button aria-label="Twitter"><Twitter size={18} /></button>
+                <button aria-label="Instagram"><Instagram size={18} /></button>
+                <button aria-label="Facebook"><Facebook size={18} /></button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div className={menuOpen ? 'drawer open' : 'drawer'}>
           <div className="drawer-overlay" onClick={closeMenu} />
