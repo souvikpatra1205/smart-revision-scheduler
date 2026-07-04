@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.smartrevision.scheduler.api.AddTopicRequest;
 import com.smartrevision.scheduler.note.NoteFileRepository;
+import com.smartrevision.scheduler.service.NoteStorageService;
 import com.smartrevision.scheduler.service.TopicService;
 import com.smartrevision.scheduler.topic.Difficulty;
 import com.smartrevision.scheduler.topic.TopicRepository;
@@ -17,7 +18,8 @@ class SchedulingAlgorithmTest {
     void createsExpectedRevisionDates() {
         TopicRepository repository = Mockito.mock(TopicRepository.class, invocation -> invocation.getArgument(0));
         NoteFileRepository noteFileRepository = Mockito.mock(NoteFileRepository.class);
-        TopicService service = new TopicService(repository, noteFileRepository, "uploads");
+        NoteStorageService noteStorageService = Mockito.mock(NoteStorageService.class);
+        TopicService service = new TopicService(repository, noteFileRepository, noteStorageService);
 
         var response = service.addTopic(1L, new AddTopicRequest(
                 "SQL Injection",
