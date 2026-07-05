@@ -20,7 +20,7 @@ public class EmailService {
     public EmailService(
             JavaMailSender mailSender,
             @Value("${app.mail.enabled}") boolean mailEnabled,
-            @Value("${spring.mail.username}") String fromAddress
+            @Value("${app.mail.from}") String fromAddress
     ) {
         this.mailSender = mailSender;
         this.mailEnabled = mailEnabled;
