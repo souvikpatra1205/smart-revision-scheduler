@@ -1519,17 +1519,22 @@ function AttachmentList({ files }) {
 
 function AttachmentCard({ file }) {
   const [url, setUrl] = useState('');
+  const [loadError, setLoadError] = useState(false);
   const isImage = file.contentType?.startsWith('image/');
   const isPdf = file.contentType === 'application/pdf';
 
   useEffect(() => {
     let objectUrl = '';
+    setLoadError(false);
     getNoteFileBlob(file.id)
       .then((blob) => {
         objectUrl = URL.createObjectURL(blob);
         setUrl(objectUrl);
       })
-      .catch(() => setUrl(''));
+      .catch(() => {
+        setUrl('');
+        setLoadError(true);
+      });
 
     return () => {
       if (objectUrl) {
@@ -1554,6 +1559,7 @@ function AttachmentCard({ file }) {
       <div>
         <strong>{file.fileName}</strong>
         <span>{formatFileSize(file.sizeBytes)}</span>
+        {loadError && <span>Could not load file</span>}
       </div>
       {url && (
         <a href={url} target="_blank" rel="noreferrer">

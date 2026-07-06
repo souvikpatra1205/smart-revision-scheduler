@@ -18,9 +18,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -61,14 +63,7 @@ public class NoteStorageService {
 
     public Resource load(String storageProvider, String storedFileName, String fileUrl) {
         if ("cloudinary".equalsIgnoreCase(storageProvider)) {
-            if (fileUrl == null || fileUrl.isBlank()) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File URL not found");
-            }
-            try {
-                return new UrlResource(fileUrl);
-            } catch (IOException exception) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found");
-            }
+            return loadCloudinary(fileUrl);
         }
         return loadLocal(storedFileName);
     }
@@ -135,6 +130,22 @@ public class NoteStorageService {
             }
             return resource;
         } catch (IOException exception) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found");
+        }
+    }
+
+    private Resource loadCloudinary(String fileUrl) {
+        if (fileUrl == null || fileUrl.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File URL not found");
+        }
+        try {
+            ResponseEntity<byte[]> response = restTemplate.getForEntity(fileUrl, byte[].class);
+            byte[] body = response.getBody();
+            if (!response.getStatusCode().is2xxSuccessful() || body == null || body.length == 0) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found");
+            }
+            return new ByteArrayResource(body);
+        } catch (RestClientException exception) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found");
         }
     }
