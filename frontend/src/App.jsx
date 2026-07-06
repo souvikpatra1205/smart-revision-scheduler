@@ -635,11 +635,11 @@ function LoginScreen({ onLogin }) {
                       <span>5</span>
                     </div>
                     {[
-                      ['SQL Injection', 'Cyber Security', 'Day 3'],
-                      ['Operating System Deadlock', 'Operating System', 'Day 7'],
-                      ['Playfair Cipher', 'Cryptography', 'Day 1'],
-                      ['B-Tree in DBMS', 'DBMS', 'Day 14'],
-                      ['Java Threads', 'Java', 'Day 3'],
+                      ['Quadratic Equations', 'Mathematics', 'Day 3'],
+                      ['Newton\'s Laws', 'Physics', 'Day 7'],
+                      ['Essay Writing', 'English', 'Day 1'],
+                      ['Human Digestive System', 'Biology', 'Day 14'],
+                      ['World War II', 'History', 'Day 3'],
                     ].map(([topic, subject, day], index) => (
                       <div className="mockup-revision" key={topic}>
                         <i className={`dot dot-${index + 1}`} />
