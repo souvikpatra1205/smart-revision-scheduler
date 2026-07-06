@@ -3414,7 +3414,7 @@ h1 {
 }
 
 .app-shell .drawer {
-  display: block;
+  display: block !important;
   pointer-events: none;
   visibility: visible !important;
 }
