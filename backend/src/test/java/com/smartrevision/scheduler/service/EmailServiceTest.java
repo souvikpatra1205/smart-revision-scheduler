@@ -17,7 +17,7 @@ class EmailServiceTest {
         JavaMailSender mailSender = mock(JavaMailSender.class);
         doThrow(new MailSendException("smtp down")).when(mailSender).send(any(SimpleMailMessage.class));
 
-        EmailService emailService = new EmailService(mailSender, true, "sender@example.com");
+        EmailService emailService = new EmailService(mailSender, true, "smtp", "sender@example.com", "Smart Revision", "");
 
         assertFalse(emailService.sendOtp("user@example.com", "123456", "registration"));
     }
