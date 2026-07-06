@@ -86,6 +86,7 @@ public class NoteStorageService {
     private StoredNoteFile storeInCloudinary(MultipartFile file) {
         requireCloudinaryConfig();
         try {
+            String resourceType = cloudinaryResourceType(file);
             long timestamp = Instant.now().getEpochSecond();
             Map<String, String> signedParams = new TreeMap<>();
             signedParams.put("folder", folder);
@@ -99,7 +100,7 @@ public class NoteStorageService {
             body.add("signature", signatureFor(signedParams));
 
             HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body);
-            String url = "https://api.cloudinary.com/v1_1/" + urlEncode(cloudName) + "/auto/upload";
+            String url = "https://api.cloudinary.com/v1_1/" + urlEncode(cloudName) + "/" + resourceType + "/upload";
             Map<String, Object> response = restTemplate.postForObject(url, request, Map.class);
             if (response == null || response.get("secure_url") == null || response.get("public_id") == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Cloudinary upload failed");
@@ -175,6 +176,14 @@ public class NoteStorageService {
 
     private String urlEncode(String value) {
         return URLEncoder.encode(value, StandardCharsets.UTF_8);
+    }
+
+    private String cloudinaryResourceType(MultipartFile file) {
+        String contentType = file.getContentType();
+        if (contentType != null && contentType.startsWith("image/")) {
+            return "image";
+        }
+        return "raw";
     }
 
     public record StoredNoteFile(String storageProvider, String storedFileName, String fileUrl) {
